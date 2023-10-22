@@ -1,0 +1,103 @@
+
+
+/*
+ *
+ * QUESTION
+ * Compare and update the inventory stored in a 2D array against a second 2D array of a fresh delivery. Update the current existing inventory item quantities (in arr1). If an item cannot be found, add the new item and quantity into the inventory array. The returned inventory array should be in alphabetical order by item.
+ * 
+ * 
+ * 
+ *
+ * QUESTION BREAK DOWN
+ * 1.) Compare and Update a 2D array
+ * 2.) Update the current existing inventory item quantity
+ * 3.) Add new entry to the inventory
+ * 4.) new inventory should be ordered alphabetically
+ * 
+ * 
+ * 
+ * TASK 1
+ * UPDATE THE CURRENT EXISTING INVENTORY ITEM QUANTITY
+ * 
+ *** step-1-solution-1: O(n2) ***
+        newInv.forEach((newItem, newItemIndex) => {
+            curInv.forEach((curItem, curItemIndex) => {
+                if (newItem[1] == curItem[1]) {
+                    curInv[curItemIndex][0] += newInv[newItemIndex][0]
+                }
+
+            })
+        }) 
+
+ *** step-1-solution-2: O(n) ***
+        // change the structure of current inventory for O(1) lookup
+        const curInv2 = {};
+        curInv.map(([quantity, item]) => {
+            curInv2[item] = quantity;
+        })
+
+        // look through new inventory to update current inventory
+        newInv.map(([quantity, item]) => {
+            if (curInv2[item]) curInv2[item] += quantity
+        })
+
+        // change the structure of the current inventory back to the initial structure
+        const result = Object.entries(curInv2).map(([item, quantity]) => [quantity, item])
+
+ *
+ * 
+ * TASK 2
+ * UPDATE THE CURRENT EXISTING INVENTORY TO ADD NEW ITEM WHILST RETAINING THE ALPHABETICAL ORDER
+         // ...
+
+         // look through new inventory to update current inventory
+         newInv.map(([quantity, item]) => {
+           if (!curInv2[item]) curInv2[item] = quantity;
+         })
+
+         // ...
+
+         // sort the result
+         return result.sort((a,b)=> a[1]<b[1] ? -1 : 1)
+ *
+ *
+ *
+ */
+
+
+
+function updateInventory(arr1, arr2) {
+    // change the structure of current inventory for O(1) lookup
+    const arr1_new = {};
+    arr1.map(([quantity, item]) => {
+        arr1_new[item] = quantity;
+    })
+
+    // look through new inventory to update current inventory
+    arr2.map(([quantity, item]) => {
+        if (arr1_new[item]) arr1_new[item] += quantity
+        else arr1_new[item] = quantity;
+    })
+
+    // change the structure of the current inventory back to the initial structure
+    const result = Object.entries(arr1_new).map(([item, quantity]) => [quantity, item])
+    return result.sort((a,b)=> a[1]<b[1] ? -1 : 1);
+}
+
+// Example inventory lists
+var curInv = [
+    [21, "Bowling Ball"],
+    [2, "Dirty Sock"],
+    [1, "Hair Pin"],
+    [5, "Microphone"]
+];
+
+var newInv = [
+    [2, "Hair Pin"],
+    [3, "Half-Eaten Apple"],
+    [67, "Bowling Ball"],
+    [7, "Toothpaste"]
+];
+
+
+console.log(updateInventory(curInv, newInv));

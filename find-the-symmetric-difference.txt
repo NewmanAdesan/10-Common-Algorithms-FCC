@@ -1,0 +1,116 @@
+function sym(...args) {
+  let result = [];
+  args.forEach((arr)=>{ 
+    result = [...result.filter((item)=>!arr.includes(item)), ...arr.filter((item)=>!result.includes(item))];
+    result = [...new Set(result)]
+  })
+  console.log(result);
+  return result;
+}
+
+sym([1, 2, 3], [5, 2, 1, 4]);
+sym([1, 2, 3, 3], [5, 2, 1, 4]);
+sym([1, 2, 3], [5, 2, 1, 4, 5]);
+sym([1, 2, 5], [2, 3, 5], [3, 4, 5])
+sym([1, 1, 2, 5], [2, 2, 3, 5], [3, 4, 5, 5])
+sym([3, 3, 3, 2, 5], [2, 1, 5, 7], [3, 4, 6, 6], [1, 2, 3])
+sym([3, 3, 3, 2, 5], [2, 1, 5, 7], [3, 4, 6, 6], [1, 2, 3], [5, 3, 9, 8], [1])
+
+// /** QUESTION **/
+// // Create a function that takes two arrays and returns an array of their symmetric difference. The returned array must contain only unique values (no duplicates).
+
+
+// /** MY STEPS **/
+// /*
+//  * symmetric difference of two sets is the set of elements which are in either of the two sets but not in both
+//  * i need to keep track of unique element in each set
+//  * i need to combine the two sets having unique element in such a way that repeated element are eliminated
+// */
+// // STEP 1: obtain a unique element of each array 
+// // O(n) + O(m)
+// let arr0 = []
+// let arr1 = [1, 2, 2, 3];
+// let arr2 = [5, 2, 1, 4, 4];
+// let arr1_unique = {};
+// arr1.map((item)=>arr1_unique[item] = true);
+
+
+// let a = [...arr0.filter((item)=>!arr1.includes(item)),
+// ...arr1.filter((item)=>!arr0.includes(item))]
+
+// console.log([...new Set(a)])
+
+// let arr2_unique = {};
+// arr2.map((item)=>arr2_unique[item] = true);
+// console.log(arr1_unique, arr2_unique);
+
+
+// // STEP 2: combine two set such that unique element stand out 
+// // O(n) + O(n) + O(m) + (m)
+
+// let symmetric_difference = {};
+// Object.keys(arr1_unique).map((item)=>
+//   symmetric_difference[item] 
+//     ?symmetric_difference[item] = false 
+//     :symmetric_difference[item] = true );
+
+// Object.keys(arr2_unique).map((item)=>
+//   symmetric_difference[item] 
+//     ?symmetric_difference[item] = false 
+//     :symmetric_difference[item] = true );
+
+// console.log(symmetric_difference);
+
+// // STEP 3: return symmetric_difference
+// // O(n+m) + O(n+m)
+// let result = Object.keys(symmetric_difference).filter((key) => symmetric_difference[key]===true);
+// console.log(result)
+
+// // Total Big-O notation = 3O(n) + 3O(m) + 2O(n+m) => O(n+m)
+
+
+
+// // /** MY STEPS **/
+// // // combine the two arrays(arr1, arr2) into arr
+// // // loop through each array and count each element
+// // // loop through the counts and place element with one count in an array result
+// // // return result
+
+// // // STEP 1: combine the two arrays(arr1, arr2) into arr
+// // // let arr1 = [1, 2, 2, 3]
+// // // let arr1New = [];
+// // // arr1.forEach((item)=>{
+// // //   console.log(arr1);
+// // //   console.log(arr1New);
+// //   // if (!arr1New[item]) arr1New.push(item);
+// //   // console.log(!arr1New[item]);
+// //   // if (!arr1New[item]) arr1New.push(item);
+// //   // console.log(!arr1[4]);
+  
+// // // })
+
+// // // console.log(arr1New);
+// // // let arr2 = [5, 2, 1, 4]
+// // // let arr = [1, 2, 3].concat([5, 2, 1, 4])
+
+
+// // // STEP 2: loop through each array and count each element
+// // let counts = {};
+// // arr.map((item) => {
+// //   // check if a value is not in the counts object
+// //   // and set the count to 1 & return
+// //   if (!counts.hasOwnProperty(item)) counts[item] = 1;
+// //   // else value in the counts object, increment count
+// //   else counts[item] = counts[item] + 1;
+// // })
+// // console.log(counts)
+
+// // // !counts.hasOwnProperty ? counts[item] = 1 : counts[item] = counts[item]  + 1;
+
+// // // STEP 3: map through the counts 
+// // // let result = Object.keys(counts).filter((key)=>counts[key]==1)
+// // // console.log(result)
+
+// // // Big O Notation
+// // //O(n+m)) + O(n+m) + O(n+m) + O(n+m) = 3O(n+m) = O(n+m)
+// // //combination + counting + object to array conversion + filtering

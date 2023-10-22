@@ -1,0 +1,46 @@
+
+function getPermutation(str) {
+  if (str.length == 0) return [""];
+  
+  let new_char = str[0];
+  let current_permutation = getPermutation(str.slice(1));
+  
+  let new_permutation = []
+  for (let perm of current_permutation){
+    for (let i=0; i<=perm.length; i++){
+      let new_perm = perm.slice(0, i) + new_char + perm.slice(i)
+      new_permutation.push(new_perm);
+    }
+  }
+
+  return new_permutation;
+}
+
+function hasConsecutiveLetters(str) {
+  for (let i=0; i<str.length-1; i++){
+      if (str[i] == str[i+1]) return true;
+  }
+  return false
+}
+
+function permAlone(str) {
+  let all_permutations = getPermutation(str);
+  let filtered_all_permutations = all_permutations.filter((item) => !hasConsecutiveLetters(item) )\
+  return filtered_all_permutations.length;
+}
+
+
+permAlone("aab")
+permAlone("aaa") 
+permAlone("aabb") 
+permAlone("abcdefa") 
+permAlone("abfdefa") 
+permAlone("zzzzzzzz") 
+permAlone("a")
+permAlone("aaab") 
+permAlone("aaabb")
+
+
+
+
+
