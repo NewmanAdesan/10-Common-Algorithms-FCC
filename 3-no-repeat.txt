@@ -25,7 +25,7 @@ function hasConsecutiveLetters(str) {
 
 function permAlone(str) {
   let all_permutations = getPermutation(str);
-  let filtered_all_permutations = all_permutations.filter((item) => !hasConsecutiveLetters(item) )\
+  let filtered_all_permutations = all_permutations.filter((item) => !hasConsecutiveLetters(item) )
   return filtered_all_permutations.length;
 }
 
