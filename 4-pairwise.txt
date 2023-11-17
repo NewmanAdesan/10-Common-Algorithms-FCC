@@ -1,87 +1,104 @@
 
 
-/**
- * QUESTION:
- * 
-   Given an array "arr", find element pairs whose sum equal the second argument "arg" and return the sum of their indices. 
-   
-   You may use multiple pairs that have the same numeric elements but different indices. 
-   that is Once an element has been used it cannot be reused to pair with another element.
-   
-   Each pair should use the lowest possible available indices.
-   For instance, pairwise([1, 1, 2], 3) creates a pair [2, 1] using the 1 at index 0 rather than the 1 at index 1, because 0+2 < 1+2.
 
-  For example pairwise([7, 9, 11, 13, 15], 20) returns 6. 
-  The pairs that sum to 20 are [7, 13] and [9, 11].
- * 
- * 
- * i think if it was sorted, thing will be so much easier
- * we can take the smallest at index 0 and the largest number at index n. 
-   if their "arg" then we pick them out and start with the new smallest at index 1 and the new largest at index n-1.
-   if their sum is less than "arg" we can take the next number after the smallest at index 1 and stay at the largest number at index n and check its sum.
-   if their sum is greater than "arg" we stay at the smallest at index 0 and go to the number before the largest that is at index n-1.
+/* O(n**2) solution */
+function pairwise_solution_1(arr, arg){
 
-   let look at this example [7, 9, 11, 13, 15], 20
-             i=0  j=4
-   start with 7 + 15 = 22  ---> 22 > 20
+    // STEP-1: intialise sum variable
+    let sum = 0;
 
-             i=0  j=3 
-   then with 7 + 13 = 20   ---> 20 == 20 --> [7, 13] 
+    // STEP-2: pair search: first loop
+    for (let aIndex = 0; aIndex < arr.length; aIndex++) {
 
-             i=1  j=2
-   then with 9 + 11 = 20   ---> 20 == 20 --> [9, 11]
+      // STEP-3: pair validation - a 
+      let a = arr[aIndex];
+      if (a === null) continue;
 
-   then with i=2  j=1
-   we stop if i>=j
+      // STEP-4: pair search: second loop      
+      for (let bIndex = aIndex + 1; bIndex < arr.length; bIndex++) {
 
- *
- * the problem is that when we sort, we lose the information of the index a particular number initially is. my solution is to change the stucture if "arr" so that even if we sort we can know the initial index of a number. 
-  
-  [13, 11, 9, 7, 15]  ==> [[13, 0], [11, 1], [9, 2], [7, 3], [15, 4] ] 
-  so even if we sort it, we sort by the first value
-    [[7, 3], [9, 2], [11, 1], [13, 0], [15, 4]]
+        // STEP-5: pair validation - b 
+        let b = arr[bIndex];
+        if (aIndex !== bIndex && b !== null && a + b === arg) {
 
+          // STEP-6: utilize the valid pair
+          sum += aIndex + bIndex;
 
- *
- * 
- * therefore this is the step of our solution
- * i) we change the data structure of arr (arr-->arrNew)
- * ii) we sort arrNew by it's item first value
- * iii) we set a pointer i=0 & j=arrNew.length-1
- * iv) while i<j:
- * v) if arrNew[i][0] + arrNew[j][0] equals to arg, we keep a count via the variable sum += arrNew[i][1] + arrNew[j][1] then we increment i by 1 and decrement j by 1
- * vi) if arrNew[i][0] + arrNew[j][0] greater than to arg, we will decrement j only
- * vii) if arrNew[i][0] + arrNew[j][0] less than to arg, we will increment i only
- */
+          // STEP-7: pair elimination
+          arr[aIndex] = null
+          arr[bIndex] = null
+        }
+      }
+    }
+
+    // STEP-8: return the sum
+    console.log(sum);
+    return sum;
+}
+
+pairwise_solution_1([1,4,2,3,0,5], 7);
+pairwise_solution_1([1, 3, 2, 4], 4);
+pairwise_solution_1([1, 1, 1], 2);
+pairwise_solution_1([0, 0, 0, 0, 1, 1], 1);
+pairwise_solution_1([], 100);
+console.log("\n\n")
 
 
+
+
+
+
+
+
+
+
+
+
+/* O(n) solution */
 function pairwise(arr, arg) {
-  let sum = 0;
-  let arrNew = [];
 
-  for (let i=0; i<arr.length; i++){
-    arrNew.push([arr[i], i])
-  }
+    // STEP-1:initialize a sum variable
+    let sum = 0;
 
-  arrNew.sort((a,b)=>a[0]-b[0])
+    // STEP-2: Obtain a new data structure
+    let arrNew = {};
+    arr.forEach((item, index)=>{
+      if (arrNew[item]) arrNew[item].indices.push(index);
+      else arrNew[item] = {indices: [index], pointer: 0};
+    })
 
-  for (let i=0, j=arrNew.length-1; i<j; ){
-    if (arrNew[i][0] + arrNew[j][0] == arg){
-      sum = sum + arrNew[i][1] + arrNew[j][1];
-      i += 1;
-      j -= 1;
+    // STEP-3: inspect each element in the array `arr`
+    for (let a of arr){
+
+    // STEP-4: obtain the complement b
+    let b = arg - a;
+
+    // STEP-5: validate the pair - check if complement exist
+    if (arrNew[b]){
+
+      // STEP-6: retrieve `b` Information & retrieve `a` Information
+      const bIndices = arrNew[b].indices;
+      let bPointer = arrNew[b].pointer;
+      const aIndices = arrNew[a].indices;
+      let aPointer = arrNew[a].pointer;
+
+      // STEP-7: handle the edge case, a & b have same numeric value
+      if (b === a) bPointer = bPointer + 1; 
+
+      // STEP-8: validate pair - check that a & b are not already in a pairing
+      if (bPointer < bIndices.length && aPointer < aIndices.length) {
+
+        // STEP-9: update the sum count, the aPointer & bPointer
+        sum += aIndices[aPointer] + bIndices[bPointer];
+        arrNew[a].pointer += 1;
+        arrNew[b].pointer += 1;
+      }
     }
+   }
 
-    else if (arrNew[i][0] + arrNew[j][0] > arg){
-      j -= 1;
-    }
-
-    else {
-      i += 1;
-    }
-  }
-  console.log(sum);
-  return arg;
+   // STEP-10: return the accumulated sum
+   console.log(sum);
+   return sum;
 }
 
 pairwise([1,4,2,3,0,5], 7);
@@ -89,6 +106,7 @@ pairwise([1, 3, 2, 4], 4);
 pairwise([1, 1, 1], 2);
 pairwise([0, 0, 0, 0, 1, 1], 1);
 pairwise([], 100);
+console.log("\n\n")
 
 
 
@@ -97,234 +115,3 @@ pairwise([], 100);
 
 
 
-
-/**
-
-QUESTION
-Given an array `arr`, find element pairs whose sum equal the second argument `arg` and return the sum of their indices.
-You may use multiple pairs that have the same numeric elements but different indices.  
-Once an element has been used it cannot be reused to pair with another element. 
-Each pair should use the lowest possible available indices.
-For instance, pairwise([1, 1, 2], 3) creates a pair [2, 1] using the 1 at index 0 rather than the 1 at index 1, because 0+2 < 1+2.
-
-
-APPROACH 1:
-  an approach is to take an element from the `arr` let's call it `a`,
-  then we find its complement let's call it `b` such that `b = arg - a`
-  so now we have a pair `(a, b)`. 
-  The question is, is this pair valid? can `b` be found in `arr`?
-  if `b` is in `arr` we have our first pair.
-    
-  1.) Selecting Elements (a and b):
-      * Start by choosing an element, denoted as `a`, from the array `arr`.
-      * Calculate its complement, referred to as `b`, using the formula `b = arg - a`. This forms a pair, (a, b).
-
-  2.) Pair Validation:
-      * To determine if this pair is valid, we must check if both `a` and `b` are present in the array `arr`.
-      * Since `a` can be found in arr, our primary focus is on verifying the presence of `b`.
-
-  3.) Validation Conditions for Pairs:
-      * It's important to ensure that `b` is within the array `arr`. Notably, there might be duplicate instances of `b` in the array, with the same numeric value but different indices.
-      * Our goal is to select the smallest `b` based on its position in the array.
-      * Additionally, we need to confirm that the chosen `b` has not been previously paired with another element.
-      * Keep in mind that the search for `b` considers that `a` is effectively removed from the array. If `a` and `b` have the same numeric value, a valid pair should have distinct indices.
-
-  By following this approach, we efficiently identify pairs of elements, `a` and `b`, in the array `arr` that sum up to the target value `arg`.
-
-
-APPROACH 2:
-  another approach says instead of picking an item from the array and processing it,
-  why can we pick two items from the array at once and process it
-
-
-
-
-
-
- * 
- * 
- * SOLUTION 2 - O(n**2)
- * a brute force approach is that we loop through the array, taking each element as `a`;
- * then we compute `b = sum - a`
- * in that loop, we loop through the array again to find `b`;
- * this leads to a big O notation of O(n) x O(n) == O(n**2);
- * 
- * 
- * SOLUTION 2 - O(n)
- * a more efficient approach is to use an Object data structure for the items of the array so that the check-through functionality is O(1);
- * the problem is, in an array structure every item is unique.with an Object data structure by default this is not the case therefore we have to make the Object data structure in such a way that we save the uniqueness of each item
- * therefore, we will make the new structure like this 
-  [0, 0, 0, 0, 1, 1] --> { '0': [[ 0, 1, 2, 3 ], 0], '1': [[ 4, 5 ], 0] }
- * let understand it; '1': [[4, 5], 0]
- * '1' depicts a value in the array
- * '[[4, 5], 0]' holds information about the value in the array
- * '[4, 5]' an array that contains indices of every '1' in the array ([0, 0, 0, 0, 1, 1])
- * '0' this acts like a pointer on array [4, 5], initially it points to '4'. Once the 1 at the fourth index of ([0, 0, 0, 0, 1, 1]) has been paired up, it increments to '1' and point to '5'. Once it's value is greater than or equal to the length of [4, 5] we know all '1' in the array ([0, 0, 0, 0, 1, 1]) has been paired up 
- * 
- * now for each item in the array, we have our `a` 
- * then we compute `b = arg - a`
- * next we check if b is in the new structure
- * if so we obtain the array corresponding to `b` which we would call (arr_b) for reference i.e  '1': [[4, 5], 0] where `b = 1`, `arr_b = [[4, 5], 0]`
- * then using the pointer arr_b[1] we know which version of `b` is availble for pairing. but before using it, we have to make sure there is a version of b that can be used for pairing by checking that its value is not greater than or equal to the length of arr_b[0]
- * so if arr_b[1] < arr_b[0].length then there is a version of `b` avaliable for pairing so we will get the index of that version i.e
-   version = arr_b[1];
-   b_index = arr_b[0][version];
- * so we add our `b_index` to the index of `a`
- * then we need a way to block access to the version of `b` and version of `a` that have just been paired up. we do this by update the pointer for `b` and for `a`
-   arr_b[1] += 1;
-   arr_a[1] += 1;
-
-   where arr_a is the array corresponding to `a` in the new structure.
- * 
- * 
- * step-0: create a variable called `sum` set to 0
- * step-1: create a new Object data structure from arr to arrNew
-        [0, 0, 0, 0, 1, 1]
-                |
-                |
-        { 
-          '0': [[ 0, 1, 2, 3 ], 0], 
-          '1': [[ 4, 5 ], 0] }
-        }
- * step-2: loop through `arr` to inspect each item `a` in it
- * step-3: get the value `b = arg - a`
- * step-4: looking through arrNew; if the `b` is a key we get the info of `b` in arrNew i.e `bIndices = arrNew[b][0]` & `bPointer = arrNew[b][1]`
- * step-5: (dealing with a tricky edge case) if `b` & `a` are the same value e.g `arg = 4`, `a = 2`, `b = arg - a = 2`
-so if this is the case we know that arrNew[b][1], what we think is `bPointer` is pointing to the index of the current `a` therefore we will choose a next version for `b`
-so `bPointer = arrNew[b][1] + 1`
- * step-6: now the edge case is taking care of, we move; we get the indices of `a` and the pointer of `a` i.e `aIndices = arrNew[a][0]` & `aPointer = arrNew[a][1]`
- * step-7: then we make sure a version of `b` OR LET'S SAY the index of `b` we are pointing to exist therefore we check `if bPointer < bIndices.length` also doing the same for `a` i.e `if aPointer < aIndices`
- * step-8: if we did not continue to the next `a` & we are still in the code block then `b_index = bIndices[bPointer]`
- * step-9: we add `b_index` to the sum variable, we add `a_index` to the sum variable
- * step-10: now that the `a` at `a_index` has been used, we move the pointer for `a` indices forward, `arrNew[a][1]++`
- * step-11: now that the `b` at `b_index` has been used, we will move the pointer for `b` indices forward `arrNew[b][1]++`
- * step-12: (dealing with the tricky edge case) if `b` & `a` were the same value, we've dwelt with how to make sure to pick different indices. we dont need to worry when it comes to updating because by default updating will happen twice `arrNew[a][1]++` & `arrNew[b][1]++` --> `arrNew[a][1] = arrNew[a][1] + 1`
- * 
- * 
- * 
- * 
- 
-   const arr = [0, 0, 0, 0, 1, 1];
-   const arg = 1;
-   
-   console.log(`this is arr: ${arr}`)
-   console.log(`this is arg: ${arg}`)
-
-   // step-1
-   let sum = 0;
-   let arrNew = {};
-   arr.forEach((item, index)=>{
-     if (arrNew[item]) arrNew[item][0].push(index);
-     else arrNew[item] = [[index], 0];
-   })
-
-   console.log(`this is arrNew: ${JSON.stringify(arrNew)}`)
-
-   // step-2
-   for (let a of arr){
-     console.log(`this is a: ${a}`);
-
-
-     // step-3
-     let b = arg - a;
-     console.log(`this is b (complement of a): ${b}`);
-
-     // step-4
-     if (arrNew[b]){
-       let bIndices = arrNew[b][0];
-       let bPointer = arrNew[b][1];
-       console.log(`this is bIndices: [${bIndices}]`)
-       console.log(`this is bPointer: ${bPointer}`)
-
-        // step-5
-        if (b === a){
-          bPointer = arrNew[b][1] + 1;
-          console.log(`edge case: b & a have same numeric element`)
-          console.log(`this is the new bPointer: ${bPointer}`)
-        }
-
-        // step-6
-        let aIndices = arrNew[a][0];
-        let aPointer = arrNew[a][1]
-        console.log(`this is aIndices: [${aIndices}]`)
-        console.log(`this is aPointer: ${aPointer}`)
-
-        // step-7
-        if (bPointer < bIndices.length && aPointer < aIndices.length) {
-
-          // step-8
-          let bIndex = bIndices[bPointer];
-          let aIndex = aIndices[aPointer];
-          console.log(`we have found a pair: ${aIndex} & ${bIndex}`)
-
-          // step-9
-          sum = sum + aIndex + bIndex;
-
-          // step-10
-          arrNew[a][1] = arrNew[a][1] + 1;
-
-          // step-11
-          arrNew[b][1] = arrNew[b][1] + 1;
-          
-          console.log(`lets see the updated pointers: ${arrNew[a][1]} & ${arrNew[b][1]}`)
-        }
-        else if (bPointer >= bIndices.length){
-          console.log("There is no more `b` to use")
-        }
-        else if (aPointer >= aIndices.length){
-          console.log("There is no more `a` to use")
-        }
-     }
-     else {
-       console.log("The complement `b` is not in the array")
-     }
-     console.log("\n")
-   }
-
-   console.log(sum)
-
- */
-
-
-
-
- Approach 2: Efficient Sorted Pairing
-
-Initial Observation:
-
-We recognize that sorting the array could simplify the problem.
-Sorting for Easier Pairing:
-
-Sort the array, placing the smallest element at index 0 and the largest element at index n.
-Pair Search:
-
-Initialize two pointers, i at index 0 and j at index n-1.
-Pair Validation Loop:
-
-While i is less than j, perform the following checks:
-Sum Comparison:
-
-If the sum of elements at i and j equals the target value arg, add their indices to the result sum:
-sum += arr[i][1] + arr[j][1]
-Increment i by 1 and decrement j by 1.
-Adjustment for Greater Sum:
-
-If the sum of elements at i and j is greater than arg, decrement j.
-Adjustment for Smaller Sum:
-
-If the sum of elements at i and j is less than arg, increment i.
-Maintaining Index Information:
-
-It's crucial to retain the initial indices of elements, even after sorting. To achieve this, we create a new data structure, arrNew, which pairs each element with its initial index:
-For example, [13, 11, 9, 7, 15] becomes [[13, 0], [11, 1], [9, 2], [7, 3], [15, 4]].
-Implementation Steps:
-
-To implement this approach:
-i) Modify the data structure of arr, transforming it into arrNew.
-ii) Sort arrNew based on the value of the first element.
-iii) Initialize pointers, i at 0 and j at arrNew.length-1.
-iv) Iterate while i is less than j.
-v) If the sum of elements at i and j equals arg, accumulate the indices to the result.
-vi) For a greater sum, decrement j.
-vii) For a smaller sum, increment i.
-This approach ensures efficient pairing of elements, retaining their initial indices even after sorting, and leads to the correct result efficiently.

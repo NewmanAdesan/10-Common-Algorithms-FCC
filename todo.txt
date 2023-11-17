@@ -1,0 +1,5 @@
+
+
+- test that all solution works ✅
+- use chatgpt to structure your readme documentation and add it to the readMe file✅
+- start the next question.
